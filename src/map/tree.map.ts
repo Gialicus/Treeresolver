@@ -38,12 +38,8 @@ export class TreeRex<R> {
   }
   async findAndResolve(path: string, callback: (id: string) => Promise<R>) {
     const funded = this.find(path);
-    if (funded) {
-      await funded.resolve(callback);
-      return true;
-    } else {
-      return false;
-    }
+    if (!funded) return;
+    await funded.resolve(callback);
   }
   async resolveByPath(path: string, callback: (id: string) => Promise<R>) {
     if (path.length === 1) await this.root.resolve(callback);
