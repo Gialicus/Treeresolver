@@ -12,8 +12,9 @@
     "test:coverage": "vitest run --coverage"
   },
   "keywords": [
-    "solts",
-    "avabilities"
+    "tree",
+    "cache",
+    "async generator"
   ],
   "author": "Gialicus",
   "license": "ISC",
