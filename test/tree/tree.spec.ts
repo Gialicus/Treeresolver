@@ -19,7 +19,7 @@ describe("Tree tests", () => {
       t1.add(t2);
     }
     await t1.resolveAll(async (id) => {
-      await setTimeout(500);
+      await setTimeout(200);
       return `Long operation with ID:${id}`;
     });
     expect(t1.children[5].children[3].resolved).toBe(
@@ -36,7 +36,7 @@ describe("Tree tests", () => {
       `|(1)\n|__(2)\n|____(4)\n|______(5)\n|__(3)\n|____(6)\n|______(7)\n`
     );
   });
-  it("should resolve all layer in tree", async () => {
+  it("should resolve all layer in tree step by step", async () => {
     const t1 = new Tree("ROOT");
     for (let i = 0; i < 5; i++) {
       const t2 = new Tree("A" + i);
@@ -49,26 +49,26 @@ describe("Tree tests", () => {
       }
       t1.add(t2);
     }
-    const q = t1.resolveLayer(async (id) => {
+    const stepper = t1.resolveLayer(async (id) => {
       await setTimeout(200);
       return `Long operation with ID: ${id}`;
     });
-    await q.next();
+    await stepper.next();
     expect(t1.resolved).toBe("Long operation with ID: ROOT");
-    await q.next();
+    await stepper.next();
     expect(t1.children[0].resolved).toBe("Long operation with ID: A0");
-    await q.next();
+    await stepper.next();
     expect(t1.children[0].children[0].resolved).toBe(
       "Long operation with ID: B0"
     );
-    await q.next();
+    await stepper.next();
     expect(t1.children[0].children[0].children[0].resolved).toBe(
       "Long operation with ID: C10"
     );
     expect(t1.children[0].children[0].children[1].resolved).toBe(
       "Long operation with ID: C20"
     );
-    await q.next();
+    await stepper.next();
     expect(t1.children[0].children[0].children[1].children[0].resolved).toBe(
       "Long operation with ID: D0"
     );

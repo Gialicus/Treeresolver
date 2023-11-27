@@ -22,53 +22,6 @@ export class Tree<R> implements TreeNode<R> {
     this.resolved = null;
     this.children = [];
   }
-  add(tree: Tree<R>) {
-    this.children.push(tree);
-    return this;
-  }
-  get(id: string) {
-    const rec = (tree: Tree<R>, id: string): Tree<R> | null => {
-      if (tree.id === id) return tree;
-      if (tree.children.length === 0) return null;
-      let founded = tree.children.find((child) => child.id === id) ?? null;
-      if (founded) return founded;
-      for (const child of tree.children) {
-        founded = rec(child, id);
-      }
-      return founded;
-    };
-    return rec(this, id);
-  }
-  async resolve(callback: (id: string) => Promise<R>) {
-    this.resolved = await callback(this.id);
-    return this;
-  }
-  async resolveChildrens(callback: (id: string) => Promise<R>) {
-    let promises = [];
-    for (const child of this.children) {
-      promises.push(child.resolve(callback));
-    }
-    const result = await Promise.all(promises);
-    result.forEach((v, i) => (this.children[i] = v));
-    return this;
-  }
-  private async resolveRecursive(
-    tree: Tree<R>,
-    callback: (id: string) => Promise<R>
-  ) {
-    let promises = [];
-    for (const child of tree.children) {
-      promises.push(this.resolveRecursive(child, callback));
-    }
-    await Promise.all([
-      tree.resolve(callback),
-      tree.resolveChildrens(callback),
-      ...promises,
-    ]);
-  }
-  resolveAll(callback: (id: string) => Promise<R>) {
-    return this.resolveRecursive(this, callback);
-  }
   private calculateDepthAndQueue(
     tree: Tree<R>,
     depth = 0,
@@ -92,13 +45,41 @@ export class Tree<R> implements TreeNode<R> {
 
     return result;
   }
+
+  add(tree: Tree<R>) {
+    this.children.push(tree);
+    return this;
+  }
+
+  get(id: string) {
+    const rec = (tree: Tree<R>, id: string): Tree<R> | null => {
+      if (tree.id === id) return tree;
+      if (tree.children.length === 0) return null;
+      let founded = tree.children.find((child) => child.id === id) ?? null;
+      if (founded) return founded;
+      for (const child of tree.children) {
+        founded = rec(child, id);
+      }
+      return founded;
+    };
+    return rec(this, id);
+  }
+
+  async resolve(callback: (id: string) => Promise<R>) {
+    this.resolved = await callback(this.id);
+    return this;
+  }
   async *resolveLayer(callback: (id: string) => Promise<R>) {
     const queue = this.calculateDepthAndQueue(this);
     for (const chunk of queue) {
       const promises = chunk.map((t) => t.resolve(callback));
       await Promise.all(promises);
-      yield this;
+      yield;
     }
-    return this;
+    return;
+  }
+  async resolveAll(callback: (id: string) => Promise<R>) {
+    for await (const _ of this.resolveLayer(callback)) {
+    }
   }
 }
