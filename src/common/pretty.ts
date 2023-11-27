@@ -1,4 +1,4 @@
-import { TreeNode } from "@/tree";
+import { TreeNode } from "..";
 
 export const pretty = <R = unknown>(tree: TreeNode<R>) => {
   const recursive = (t: TreeNode<R>, str = "", count = 0) => {

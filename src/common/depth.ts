@@ -1,4 +1,4 @@
-import { Tree } from "@/tree";
+import { Tree } from "..";
 
 export function calculateDepthAndQueue<R = unknown>(
   tree: Tree<R>,
