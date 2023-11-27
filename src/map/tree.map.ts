@@ -1,3 +1,4 @@
+import { join } from "path";
 import { Tree, createFnBody } from "..";
 
 export class TreeMap<R> {
@@ -26,5 +27,22 @@ export class TreeMap<R> {
   }
   find(path: string) {
     return this.cache.get(path) ?? null;
+  }
+  async findAndResolve(path: string, callback: (id: string) => Promise<R>) {
+    const funded = this.find(path);
+    if (funded) {
+      await funded.resolve(callback);
+      return true;
+    } else {
+      return false;
+    }
+  }
+  async resolveByPath(path: string, callback: (id: string) => Promise<R>) {
+    if (path.length === 1) return await this.root.resolve(callback);
+    const indexes = path.split(".");
+    while (indexes.length > 0) {
+      await this.findAndResolve(indexes.join("."), callback);
+      indexes.pop();
+    }
   }
 }
