@@ -24,6 +24,7 @@ export class TreeMap<R> {
   private runGetter(key: string, depth: number) {
     const fn = new Function(createFnBody(key, depth)).bind(this);
     const result = fn();
+    if (!result) return null;
     return result as Tree<R>;
   }
   find(path: string) {
