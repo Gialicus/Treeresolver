@@ -20,5 +20,6 @@ export class Tree<R> implements TreeNode<R> {
       queue.push(this.children[i].resolve(callback));
     }
     await Promise.all(queue);
+    return this;
   }
 }
