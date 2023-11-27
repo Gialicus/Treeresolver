@@ -7,11 +7,11 @@ describe("TreeRex tests", () => {
     t1.add(new Tree("B").add(new Tree("C").add(new Tree("D")))).add(
       new Tree("B1").add(new Tree("C1"))
     );
-    const map = new TreeRex(t1);
+    const rex = new TreeRex(t1);
     const expected = t1.children
       .find((child) => child.id === "B")
       ?.children.find((child) => child.id === "C");
-    expect(map.find("A.B.C")).toStrictEqual(expected);
+    expect(rex.find("A.B.C")).toStrictEqual(expected);
   });
   it("should find tree in path and resolve", async () => {
     const t1 = new Tree<string>("A");
@@ -20,15 +20,15 @@ describe("TreeRex tests", () => {
         new Tree<string>("C").add(new Tree<string>("D"))
       )
     ).add(new Tree<string>("B1").add(new Tree<string>("C1")));
-    let map = new TreeRex<string>(t1);
-    await map.resolveByPath(
+    let rex = new TreeRex<string>(t1);
+    await rex.resolveByPath(
       "A.B.C.D",
       async (id) => `Long operation with ID: ${id}`
     );
-    expect(map.find("A")?.resolved).toBe(`Long operation with ID: A`);
-    expect(map.find("A.B")?.resolved).toBe(`Long operation with ID: B`);
-    expect(map.find("A.B.C")?.resolved).toBe(`Long operation with ID: C`);
-    expect(map.find("A.B.C.D")?.resolved).toBe(`Long operation with ID: D`);
+    expect(rex.find("A")?.resolved).toBe(`Long operation with ID: A`);
+    expect(rex.find("A.B")?.resolved).toBe(`Long operation with ID: B`);
+    expect(rex.find("A.B.C")?.resolved).toBe(`Long operation with ID: C`);
+    expect(rex.find("A.B.C.D")?.resolved).toBe(`Long operation with ID: D`);
   });
   it("should resolve all tree", async () => {
     const t1 = new Tree("ROOT");
@@ -39,11 +39,11 @@ describe("TreeRex tests", () => {
       }
       t1.add(t2);
     }
-    const tm1 = new TreeRex(t1);
-    await tm1.resolveAll(async (id) => {
+    const rex = new TreeRex(t1);
+    await rex.resolveAll(async (id) => {
       return `Long operation with ID: ${id}`;
     });
-    expect(tm1.root.children[5].children[3].resolved).toBe(
+    expect(rex.root.children[5].children[3].resolved).toBe(
       "Long operation with ID: 3"
     );
   });
@@ -61,29 +61,29 @@ describe("TreeRex tests", () => {
       }
       t1.add(t2);
     }
-    const tm1 = new TreeRex(t1);
-    const stepper = tm1.resolveLayer(async (id) => {
+    const rex = new TreeRex(t1);
+    const stepper = rex.resolveLayer(async (id) => {
       await setTimeout(200);
       return `Long operation with ID: ${id}`;
     });
     await stepper.next();
-    expect(tm1.root.resolved).toBe("Long operation with ID: ROOT");
+    expect(rex.root.resolved).toBe("Long operation with ID: ROOT");
     await stepper.next();
-    expect(tm1.root.children[0].resolved).toBe("Long operation with ID: A0");
+    expect(rex.root.children[0].resolved).toBe("Long operation with ID: A0");
     await stepper.next();
-    expect(tm1.root.children[0].children[0].resolved).toBe(
+    expect(rex.root.children[0].children[0].resolved).toBe(
       "Long operation with ID: B0"
     );
     await stepper.next();
-    expect(tm1.root.children[0].children[0].children[0].resolved).toBe(
+    expect(rex.root.children[0].children[0].children[0].resolved).toBe(
       "Long operation with ID: C10"
     );
-    expect(tm1.root.children[0].children[0].children[1].resolved).toBe(
+    expect(rex.root.children[0].children[0].children[1].resolved).toBe(
       "Long operation with ID: C20"
     );
     await stepper.next();
     expect(
-      tm1.root.children[0].children[0].children[1].children[0].resolved
+      rex.root.children[0].children[0].children[1].children[0].resolved
     ).toBe("Long operation with ID: D0");
   });
 });
