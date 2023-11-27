@@ -1,9 +1,11 @@
-import { Tree, calculateDepthAndQueue, createFnBody } from "..";
+import { Tree, calculateDepthAndQueue, createFnBody, from } from "..";
 
 export class TreeMap<R> {
   private cache: Map<string, Tree<R> | null>;
-  constructor(public root: Tree<R>) {
+  public root: Tree<R>;
+  constructor(public tree: Tree<R>) {
     this.cache = new Map<string, Tree<R> | null>();
+    this.root = from<R>(tree);
     this.init(this.root);
   }
   private init(node: Tree<R>, path = "", depth = 0) {

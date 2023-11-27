@@ -7,11 +7,11 @@ describe("TreeMap tests", () => {
     t1.add(new Tree("B").add(new Tree("C").add(new Tree("D")))).add(
       new Tree("B1").add(new Tree("C1"))
     );
-    const c = new TreeMap(t1);
-    const ex = t1.children
+    const map = new TreeMap(t1);
+    const expected = t1.children
       .find((child) => child.id === "B")
       ?.children.find((child) => child.id === "C");
-    expect(c.find("A.B.C")).toBe(ex);
+    expect(map.find("A.B.C")).toStrictEqual(expected);
   });
   it("should find tree in path and resolve", async () => {
     const t1 = new Tree<string>("A");
@@ -65,23 +65,23 @@ describe("TreeMap tests", () => {
       return `Long operation with ID: ${id}`;
     });
     await stepper.next();
-    expect(t1.resolved).toBe("Long operation with ID: ROOT");
+    expect(tm1.root.resolved).toBe("Long operation with ID: ROOT");
     await stepper.next();
-    expect(t1.children[0].resolved).toBe("Long operation with ID: A0");
+    expect(tm1.root.children[0].resolved).toBe("Long operation with ID: A0");
     await stepper.next();
-    expect(t1.children[0].children[0].resolved).toBe(
+    expect(tm1.root.children[0].children[0].resolved).toBe(
       "Long operation with ID: B0"
     );
     await stepper.next();
-    expect(t1.children[0].children[0].children[0].resolved).toBe(
+    expect(tm1.root.children[0].children[0].children[0].resolved).toBe(
       "Long operation with ID: C10"
     );
-    expect(t1.children[0].children[0].children[1].resolved).toBe(
+    expect(tm1.root.children[0].children[0].children[1].resolved).toBe(
       "Long operation with ID: C20"
     );
     await stepper.next();
-    expect(t1.children[0].children[0].children[1].children[0].resolved).toBe(
-      "Long operation with ID: D0"
-    );
+    expect(
+      tm1.root.children[0].children[0].children[1].children[0].resolved
+    ).toBe("Long operation with ID: D0");
   });
 });
