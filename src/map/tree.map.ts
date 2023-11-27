@@ -6,7 +6,7 @@ type GetThunk<R> = () => Tree<R> | null;
 export class TreeMap<R> {
   private indexMap: Map<string, GetThunk<R>>;
   public root: Tree<R>;
-  constructor(public tree: Tree<R>, private options?: CacheOptions) {
+  constructor(tree: Tree<R>, private options?: CacheOptions) {
     this.indexMap = new Map<string, GetThunk<R>>();
     this.root = from<R>(tree);
     this.init(this.root);
