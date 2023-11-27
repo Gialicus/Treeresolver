@@ -6,12 +6,7 @@ export class TreeMap<R> {
     this.cache = new Map<string, Tree<R> | null>();
     this.buildTreeMap(this.root);
   }
-  private buildTreeMap(
-    node: Tree<R>,
-    path = "",
-    depth = 0,
-    parent: Tree<R> | null = null
-  ) {
+  private buildTreeMap(node: Tree<R>, path = "", depth = 0) {
     if (!node) {
       return this.cache;
     }
@@ -20,7 +15,7 @@ export class TreeMap<R> {
     depth += 1;
     if (node.children && node.children.length > 0) {
       for (const child of node.children) {
-        this.buildTreeMap(child, currentPath, depth, node);
+        this.buildTreeMap(child, currentPath, depth);
       }
     }
   }
