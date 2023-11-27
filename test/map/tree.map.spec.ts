@@ -22,12 +22,13 @@ describe("TreeMap tests", () => {
     ).add(new Tree<string>("B1").add(new Tree<string>("C1")));
     let map = new TreeMap<string>(t1);
     await map.resolveByPath(
-      "A.B.C",
+      "A.B.C.D",
       async (id) => `Long operation with ID: ${id}`
     );
     expect(map.find("A")?.resolved).toBe(`Long operation with ID: A`);
     expect(map.find("A.B")?.resolved).toBe(`Long operation with ID: B`);
     expect(map.find("A.B.C")?.resolved).toBe(`Long operation with ID: C`);
+    expect(map.find("A.B.C.D")?.resolved).toBe(`Long operation with ID: D`);
   });
   it("should resolve all tree", async () => {
     const t1 = new Tree("ROOT");
