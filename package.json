@@ -1,0 +1,28 @@
+{
+  "name": "tree-resolver",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start:dev": "tsx watch src/index.ts",
+    "start": "node build/server.js",
+    "build": "tsup src --out-dir build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "keywords": [
+    "solts",
+    "avabilities"
+  ],
+  "author": "Gialicus",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.4.0",
+    "tsup": "^7.1.0",
+    "tsx": "^3.12.7",
+    "typescript": "^5.1.6",
+    "vite-tsconfig-paths": "^4.2.0",
+    "vitest": "^0.32.4"
+  }
+}
