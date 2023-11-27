@@ -1,5 +1,6 @@
+import { pretty } from "@/common";
 import { TreeMap } from "@/map";
-import { Tree, pretty } from "@/tree";
+import { Tree } from "@/tree";
 
 describe("TreeMap tests", () => {
   it("should find tree in path", () => {

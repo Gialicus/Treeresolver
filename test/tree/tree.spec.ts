@@ -1,4 +1,5 @@
-import { Tree, pretty } from "@/tree";
+import { pretty } from "@/common";
+import { Tree } from "@/tree";
 import { setTimeout } from "timers/promises";
 
 describe("Tree tests", () => {
