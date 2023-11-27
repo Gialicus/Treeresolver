@@ -55,17 +55,20 @@ export class TreeMap<R> {
   }
   async *resolveLayer(callback: (id: string) => Promise<R>) {
     const queue = calculateDepthAndQueue(this.root);
-    const cache = createCache(this.options);
-    const chacheIstance = cache.define("resolve", callback);
-    const inner = async function* () {
-      for (const chunk of queue) {
-        const promises = chunk.map((t) => t.resolve(chacheIstance.resolve));
-        await Promise.all(promises);
-        yield;
+    const cache = createCache(
+      this.options ?? {
+        ttl: 5, // seconds
+        stale: 5, // number of seconds to return data after ttl has expired
+        storage: { type: "memory" },
       }
-      return;
-    };
-    return yield* inner();
+    );
+    const chacheIstance = cache.define("resolve", callback);
+    for (const chunk of queue) {
+      const promises = chunk.map((t) => t.resolve(chacheIstance.resolve));
+      await Promise.all(promises);
+      yield;
+    }
+    return;
   }
   async resolveAll(callback: (id: string) => Promise<R>) {
     for await (const _ of this.resolveLayer(callback)) {
