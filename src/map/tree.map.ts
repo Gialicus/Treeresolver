@@ -1,19 +1,19 @@
 import { Tree, calculateDepthAndQueue, createFnBody, from } from "..";
 
 export class TreeMap<R> {
-  private cache: Map<string, Tree<R> | null>;
+  private indexMap: Map<string, Tree<R> | null>;
   public root: Tree<R>;
   constructor(public tree: Tree<R>) {
-    this.cache = new Map<string, Tree<R> | null>();
+    this.indexMap = new Map<string, Tree<R> | null>();
     this.root = from<R>(tree);
     this.init(this.root);
   }
   private init(node: Tree<R>, path = "", depth = 0) {
     if (!node) {
-      return this.cache;
+      return this.indexMap;
     }
     const currentPath = path === "" ? `${node.id}` : `${path}.${node.id}`;
-    this.cache.set(currentPath, this.runGetter(currentPath, depth));
+    this.indexMap.set(currentPath, this.runGetter(currentPath, depth));
     depth += 1;
     if (node.children && node.children.length > 0) {
       for (const child of node.children) {
@@ -27,7 +27,7 @@ export class TreeMap<R> {
     return result as Tree<R>;
   }
   find(path: string) {
-    return this.cache.get(path) ?? null;
+    return this.indexMap.get(path) ?? null;
   }
   async findAndResolve(path: string, callback: (id: string) => Promise<R>) {
     const funded = this.find(path);
