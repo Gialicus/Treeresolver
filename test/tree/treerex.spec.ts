@@ -1,8 +1,7 @@
-import { TreeRex } from "@/map";
-import { Tree } from "@/tree";
+import { Tree, TreeRex } from "@/tree";
 import { setTimeout } from "timers/promises";
 
-describe("TreeMap tests", () => {
+describe("TreeRex tests", () => {
   it("should find tree in path", () => {
     const t1 = new Tree("A");
     t1.add(new Tree("B").add(new Tree("C").add(new Tree("D")))).add(
