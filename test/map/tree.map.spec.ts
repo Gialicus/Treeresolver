@@ -1,5 +1,6 @@
 import { TreeMap } from "@/map";
 import { Tree } from "@/tree";
+import { setTimeout } from "timers/promises";
 
 describe("TreeMap tests", () => {
   it("should find tree in path", () => {
@@ -63,6 +64,7 @@ describe("TreeMap tests", () => {
     }
     const tm1 = new TreeMap(t1);
     const stepper = tm1.resolveLayer(async (id) => {
+      await setTimeout(200);
       return `Long operation with ID: ${id}`;
     });
     await stepper.next();

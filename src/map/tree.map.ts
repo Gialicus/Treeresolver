@@ -1,10 +1,13 @@
-import { Tree, calculateDepthAndQueue, createFnBody, from } from "..";
+import { createCache } from "async-cache-dedupe";
+import { Tree, calculateDepthAndQueue, createFnBody, from, pretty } from "..";
 
+type CacheOptions = Parameters<typeof createCache>[0];
+type GetThunk<R> = () => Tree<R> | null;
 export class TreeMap<R> {
-  private indexMap: Map<string, Tree<R> | null>;
+  private indexMap: Map<string, GetThunk<R>>;
   public root: Tree<R>;
-  constructor(public tree: Tree<R>) {
-    this.indexMap = new Map<string, Tree<R> | null>();
+  constructor(public tree: Tree<R>, private options?: CacheOptions) {
+    this.indexMap = new Map<string, GetThunk<R>>();
     this.root = from<R>(tree);
     this.init(this.root);
   }
@@ -23,12 +26,15 @@ export class TreeMap<R> {
   }
   private runGetter(key: string, depth: number) {
     const fn = new Function(createFnBody(key, depth)).bind(this);
-    const result = fn();
-    if (!result) return null;
-    return result as Tree<R>;
+    return fn as () => Tree<R> | null;
   }
   find(path: string) {
-    return this.indexMap.get(path) ?? null;
+    let thunk = this.indexMap.get(path);
+    if (thunk) {
+      return thunk() ?? null;
+    } else {
+      return null;
+    }
   }
   async findAndResolve(path: string, callback: (id: string) => Promise<R>) {
     const funded = this.find(path);
@@ -49,15 +55,23 @@ export class TreeMap<R> {
   }
   async *resolveLayer(callback: (id: string) => Promise<R>) {
     const queue = calculateDepthAndQueue(this.root);
-    for (const chunk of queue) {
-      const promises = chunk.map((t) => t.resolve(callback));
-      await Promise.all(promises);
-      yield;
-    }
-    return;
+    const cache = createCache(this.options);
+    const chacheIstance = cache.define("resolve", callback);
+    const inner = async function* () {
+      for (const chunk of queue) {
+        const promises = chunk.map((t) => t.resolve(chacheIstance.resolve));
+        await Promise.all(promises);
+        yield;
+      }
+      return;
+    };
+    return yield* inner();
   }
   async resolveAll(callback: (id: string) => Promise<R>) {
     for await (const _ of this.resolveLayer(callback)) {
     }
+  }
+  pretty() {
+    return pretty(this.root);
   }
 }
