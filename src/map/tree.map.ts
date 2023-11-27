@@ -1,9 +1,8 @@
-import { join } from "path";
-import { Tree, createFnBody } from "..";
+import { Tree, calculateDepthAndQueue, createFnBody } from "..";
 
 export class TreeMap<R> {
   private cache: Map<string, Tree<R> | null>;
-  constructor(private root: Tree<R>) {
+  constructor(public root: Tree<R>) {
     this.cache = new Map<string, Tree<R> | null>();
     this.init(this.root);
   }
@@ -43,6 +42,19 @@ export class TreeMap<R> {
     while (indexes.length > 0) {
       await this.findAndResolve(indexes.join("."), callback);
       indexes.pop();
+    }
+  }
+  async *resolveLayer(callback: (id: string) => Promise<R>) {
+    const queue = calculateDepthAndQueue(this.root);
+    for (const chunk of queue) {
+      const promises = chunk.map((t) => t.resolve(callback));
+      await Promise.all(promises);
+      yield;
+    }
+    return;
+  }
+  async resolveAll(callback: (id: string) => Promise<R>) {
+    for await (const _ of this.resolveLayer(callback)) {
     }
   }
 }

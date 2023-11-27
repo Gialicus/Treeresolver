@@ -1,4 +1,3 @@
-import { pretty } from "@/common";
 import { TreeMap } from "@/map";
 import { Tree } from "@/tree";
 
@@ -29,5 +28,60 @@ describe("TreeMap tests", () => {
     expect(map.find("A")?.resolved).toBe(`Long operation with ID: A`);
     expect(map.find("A.B")?.resolved).toBe(`Long operation with ID: B`);
     expect(map.find("A.B.C")?.resolved).toBe(`Long operation with ID: C`);
+  });
+  it("should resolve all tree", async () => {
+    const t1 = new Tree("ROOT");
+    for (let i = 0; i < 10; i++) {
+      const t2 = new Tree("" + i);
+      for (let j = 0; j < 5; j++) {
+        t2.add(new Tree("" + j).add(new Tree("" + (j + 1))));
+      }
+      t1.add(t2);
+    }
+    const tm1 = new TreeMap(t1);
+    await tm1.resolveAll(async (id) => {
+      return `Long operation with ID: ${id}`;
+    });
+    expect(tm1.root.children[5].children[3].resolved).toBe(
+      "Long operation with ID: 3"
+    );
+  });
+
+  it("should resolve all layer in tree step by step", async () => {
+    const t1 = new Tree("ROOT");
+    for (let i = 0; i < 5; i++) {
+      const t2 = new Tree("A" + i);
+      for (let j = 0; j < 3; j++) {
+        t2.add(
+          new Tree("B" + j)
+            .add(new Tree("C1" + j))
+            .add(new Tree("C2" + j).add(new Tree("D" + j)))
+        );
+      }
+      t1.add(t2);
+    }
+    const tm1 = new TreeMap(t1);
+    const stepper = tm1.resolveLayer(async (id) => {
+      return `Long operation with ID: ${id}`;
+    });
+    await stepper.next();
+    expect(t1.resolved).toBe("Long operation with ID: ROOT");
+    await stepper.next();
+    expect(t1.children[0].resolved).toBe("Long operation with ID: A0");
+    await stepper.next();
+    expect(t1.children[0].children[0].resolved).toBe(
+      "Long operation with ID: B0"
+    );
+    await stepper.next();
+    expect(t1.children[0].children[0].children[0].resolved).toBe(
+      "Long operation with ID: C10"
+    );
+    expect(t1.children[0].children[0].children[1].resolved).toBe(
+      "Long operation with ID: C20"
+    );
+    await stepper.next();
+    expect(t1.children[0].children[0].children[1].children[0].resolved).toBe(
+      "Long operation with ID: D0"
+    );
   });
 });
