@@ -1,4 +1,4 @@
-import { TreeMap } from "@/map";
+import { TreeRex } from "@/map";
 import { Tree } from "@/tree";
 import { setTimeout } from "timers/promises";
 
@@ -8,7 +8,7 @@ describe("TreeMap tests", () => {
     t1.add(new Tree("B").add(new Tree("C").add(new Tree("D")))).add(
       new Tree("B1").add(new Tree("C1"))
     );
-    const map = new TreeMap(t1);
+    const map = new TreeRex(t1);
     const expected = t1.children
       .find((child) => child.id === "B")
       ?.children.find((child) => child.id === "C");
@@ -21,7 +21,7 @@ describe("TreeMap tests", () => {
         new Tree<string>("C").add(new Tree<string>("D"))
       )
     ).add(new Tree<string>("B1").add(new Tree<string>("C1")));
-    let map = new TreeMap<string>(t1);
+    let map = new TreeRex<string>(t1);
     await map.resolveByPath(
       "A.B.C.D",
       async (id) => `Long operation with ID: ${id}`
@@ -40,7 +40,7 @@ describe("TreeMap tests", () => {
       }
       t1.add(t2);
     }
-    const tm1 = new TreeMap(t1);
+    const tm1 = new TreeRex(t1);
     await tm1.resolveAll(async (id) => {
       return `Long operation with ID: ${id}`;
     });
@@ -62,7 +62,7 @@ describe("TreeMap tests", () => {
       }
       t1.add(t2);
     }
-    const tm1 = new TreeMap(t1);
+    const tm1 = new TreeRex(t1);
     const stepper = tm1.resolveLayer(async (id) => {
       await setTimeout(200);
       return `Long operation with ID: ${id}`;

@@ -3,7 +3,7 @@ import { Tree, calculateDepthAndQueue, createFnBody, from, pretty } from "..";
 
 type CacheOptions = Parameters<typeof createCache>[0];
 type GetThunk<R> = () => Tree<R> | null;
-export class TreeMap<R> {
+export class TreeRex<R> {
   private indexMap: Map<string, GetThunk<R>>;
   public root: Tree<R>;
   constructor(tree: Tree<R>, private options?: CacheOptions) {
@@ -16,7 +16,7 @@ export class TreeMap<R> {
       return this.indexMap;
     }
     const currentPath = path === "" ? `${node.id}` : `${path}.${node.id}`;
-    this.indexMap.set(currentPath, this.runGetter(currentPath, depth));
+    this.indexMap.set(currentPath, this.makeThunk(currentPath, depth));
     depth += 1;
     if (node.children && node.children.length > 0) {
       for (const child of node.children) {
@@ -24,7 +24,7 @@ export class TreeMap<R> {
       }
     }
   }
-  private runGetter(key: string, depth: number) {
+  private makeThunk(key: string, depth: number) {
     const fn = new Function(createFnBody(key, depth)).bind(this);
     return fn as () => Tree<R> | null;
   }
@@ -46,19 +46,20 @@ export class TreeMap<R> {
     }
   }
   async resolveByPath(path: string, callback: (id: string) => Promise<R>) {
-    if (path.length === 1) return await this.root.resolve(callback);
+    if (path.length === 1) await this.root.resolve(callback);
     const indexes = path.split(".");
     while (indexes.length > 0) {
       await this.findAndResolve(indexes.join("."), callback);
       indexes.pop();
     }
   }
-  async *resolveLayer(callback: (id: string) => Promise<R>) {
+  async *resolveLayer(
+    callback: (id: string) => Promise<R>
+  ): AsyncGenerator<void, void, unknown> {
     const queue = calculateDepthAndQueue(this.root);
     const cache = createCache(
       this.options ?? {
         ttl: 5, // seconds
-        stale: 5, // number of seconds to return data after ttl has expired
         storage: { type: "memory" },
       }
     );
