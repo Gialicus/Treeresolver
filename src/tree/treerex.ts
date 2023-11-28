@@ -1,12 +1,10 @@
-import { createCache } from "async-cache-dedupe";
 import { Tree, calculateDepthAndQueue, createFnBody, from, pretty } from "..";
 
-type CacheOptions = Parameters<typeof createCache>[0];
 type GetThunk<R> = () => Tree<R> | null;
 export class TreeRex<R> {
   private indexMap: Map<string, GetThunk<R>>;
   public root: Tree<R>;
-  constructor(tree: Tree<R>, private options?: CacheOptions) {
+  constructor(tree: Tree<R>) {
     this.indexMap = new Map<string, GetThunk<R>>();
     this.root = from<R>(tree);
     this.initMap(this.root, [], this.indexMap);
@@ -52,15 +50,8 @@ export class TreeRex<R> {
     callback: (id: string) => Promise<R>
   ): AsyncGenerator<void, void, unknown> {
     const queue = calculateDepthAndQueue(this.root);
-    const cache = createCache(
-      this.options ?? {
-        ttl: 5, // seconds
-        storage: { type: "memory" },
-      }
-    );
-    const chacheIstance = cache.define("resolve", callback);
     for (const chunk of queue) {
-      const promises = chunk.map((t) => t.resolve(chacheIstance.resolve));
+      const promises = chunk.map((t) => t.resolve(callback));
       await Promise.all(promises);
       yield;
     }
