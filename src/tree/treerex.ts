@@ -10,21 +10,25 @@ import {
 type GetThunk<R> = () => Tree<R> | null;
 export class TreeRex<ReturnType> {
   private indexMap: Map<string, GetThunk<ReturnType>>;
+  private materilizedPath: Map<string, string>;
   public root: Tree<ReturnType>;
   constructor(tree: Tree<ReturnType>) {
     this.indexMap = new Map<string, GetThunk<ReturnType>>();
+    this.materilizedPath = new Map<string, string>();
     this.root = from<ReturnType>(tree);
-    this.initMap(this.root, [], this.indexMap);
+    this.initMap(this.root, "", []);
   }
   private initMap(
     node: Tree<ReturnType>,
-    currentPath: number[],
-    indexMap: Map<string, GetThunk<ReturnType>>
+    currentKey: string,
+    currentPath: number[]
   ) {
-    indexMap.set(node.id, this.makeThunk([...currentPath]));
+    const key = currentKey ? `${currentKey}|${node.id}` : node.id;
+    this.materilizedPath.set(node.id, key);
+    this.indexMap.set(node.id, this.makeThunk([...currentPath]));
     for (let i = 0; i < node.children.length; i++) {
       const child = node.children[i];
-      this.initMap(child, [...currentPath, i], indexMap);
+      this.initMap(child, key, [...currentPath, i]);
     }
   }
   private makeThunk(path: number[]) {
@@ -39,6 +43,10 @@ export class TreeRex<ReturnType> {
     } else {
       return null;
     }
+  }
+  findPath(id: string) {
+    if (!this.materilizedPath.has(id)) return [];
+    return this.materilizedPath.get(id)?.split("|");
   }
   async findAndResolve(id: string, callback: ResolveCallback<ReturnType>) {
     const funded = this.find(id);
