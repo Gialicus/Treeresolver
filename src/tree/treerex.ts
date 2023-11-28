@@ -76,7 +76,7 @@ export class TreeRex<ReturnType> {
     for await (const _ of this.resolveLayer(callback)) {
     }
   }
-  pretty(full = false) {
-    return pretty(this.root, full);
+  pretty(showResolvedValue = false) {
+    return pretty(this.root, showResolvedValue);
   }
 }
