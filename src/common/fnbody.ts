@@ -1,9 +1,8 @@
-export function createFnBody(key: string, depth: number) {
-  if (key.length === 1) return "return this.root;";
-  const indexes = key.split(".");
+export function createFnBody(path: number[]) {
+  if (path.length === 0) return "return this.root;";
   let body = "this.root";
-  for (let d = 1; d <= depth; d++) {
-    body += `?.children.find(child => child.id === '${indexes[d]}')`;
+  for (const index of path) {
+    body += `?.children[${index}]`;
   }
   return `return ${body};`;
 }

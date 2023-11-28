@@ -11,9 +11,9 @@ describe("TreeRex tests", () => {
     const expected = t1.children
       .find((child) => child.id === "B")
       ?.children.find((child) => child.id === "C");
-    expect(rex.find("A.B.C")).toStrictEqual(expected);
+    expect(rex.find("C")).toStrictEqual(expected);
   });
-  it("should find tree in path and resolve", async () => {
+  it("should find and resolve tree", async () => {
     const t1 = new Tree<string>("A");
     t1.add(
       new Tree<string>("B").add(
@@ -21,14 +21,30 @@ describe("TreeRex tests", () => {
       )
     ).add(new Tree<string>("B1").add(new Tree<string>("C1")));
     let rex = new TreeRex<string>(t1);
-    await rex.resolveByPath(
-      "A.B.C.D",
+    await rex.findAndResolve(
+      "D",
       async (id) => `Long operation with ID: ${id}`
     );
-    expect(rex.find("A")?.resolved).toBe(`Long operation with ID: A`);
-    expect(rex.find("A.B")?.resolved).toBe(`Long operation with ID: B`);
-    expect(rex.find("A.B.C")?.resolved).toBe(`Long operation with ID: C`);
-    expect(rex.find("A.B.C.D")?.resolved).toBe(`Long operation with ID: D`);
+    expect(rex.find("D")?.resolved).toBe(`Long operation with ID: D`);
+  });
+  it("should find and resolve tree children", async () => {
+    const t1 = new Tree<string>("A");
+    t1.add(
+      new Tree<string>("B").add(
+        new Tree<string>("C").add(new Tree<string>("D"))
+      )
+    ).add(new Tree<string>("B1").add(new Tree<string>("C1")));
+    let rex = new TreeRex<string>(t1);
+    await rex.findAndResolveChildren(
+      "A",
+      async (id) => `Long operation with ID: ${id}`
+    );
+    expect(rex.find("A")?.children[0].resolved).toBe(
+      `Long operation with ID: B`
+    );
+    expect(rex.find("A")?.children[1].resolved).toBe(
+      `Long operation with ID: B1`
+    );
   });
   it("should resolve all tree", async () => {
     const t1 = new Tree("ROOT");

@@ -9,45 +9,44 @@ export class TreeRex<R> {
   constructor(tree: Tree<R>, private options?: CacheOptions) {
     this.indexMap = new Map<string, GetThunk<R>>();
     this.root = from<R>(tree);
-    this.init(this.root);
+    this.initMap(this.root, [], this.indexMap);
   }
-  private init(node: Tree<R>, path = "", depth = 0) {
-    if (!node) {
-      return this.indexMap;
-    }
-    const currentPath = path === "" ? `${node.id}` : `${path}.${node.id}`;
-    this.indexMap.set(currentPath, this.makeThunk(currentPath, depth));
-    depth += 1;
-    if (node.children && node.children.length > 0) {
-      for (const child of node.children) {
-        this.init(child, currentPath, depth);
-      }
+  private initMap(
+    node: Tree<R>,
+    currentPath: number[],
+    indexMap: Map<string, GetThunk<R>>
+  ) {
+    indexMap.set(node.id, this.makeThunk([...currentPath]));
+    for (let i = 0; i < node.children.length; i++) {
+      const child = node.children[i];
+      this.initMap(child, [...currentPath, i], indexMap);
     }
   }
-  private makeThunk(key: string, depth: number) {
-    const fn = new Function(createFnBody(key, depth)).bind(this);
+  private makeThunk(path: number[]) {
+    const fn = new Function(createFnBody(path)).bind(this);
     return fn as () => Tree<R> | null;
   }
-  find(path: string) {
-    let thunk = this.indexMap.get(path);
+  find(id: string) {
+    if (id === this.root.id) return this.root;
+    let thunk = this.indexMap.get(id);
     if (thunk) {
       return thunk() ?? null;
     } else {
       return null;
     }
   }
-  async findAndResolve(path: string, callback: (id: string) => Promise<R>) {
-    const funded = this.find(path);
+  async findAndResolve(id: string, callback: (id: string) => Promise<R>) {
+    const funded = this.find(id);
     if (!funded) return;
     await funded.resolve(callback);
   }
-  async resolveByPath(path: string, callback: (id: string) => Promise<R>) {
-    if (path.length === 1) await this.root.resolve(callback);
-    const indexes = path.split(".");
-    while (indexes.length > 0) {
-      await this.findAndResolve(indexes.join("."), callback);
-      indexes.pop();
-    }
+  async findAndResolveChildren(
+    id: string,
+    callback: (id: string) => Promise<R>
+  ) {
+    const funded = this.find(id);
+    if (!funded) return;
+    await funded.resolveChildren(callback);
   }
   async *resolveLayer(
     callback: (id: string) => Promise<R>
