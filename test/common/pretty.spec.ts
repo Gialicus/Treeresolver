@@ -9,7 +9,7 @@ describe("pretty tests", () => {
     t1.add(t2).add(t3);
     const p = pretty(t1);
     expect(p).toBe(
-      `|(1) resolved: false\n|__(2) resolved: false\n|____(4) resolved: false\n|______(5) resolved: false\n|__(3) resolved: false\n|____(6) resolved: false\n|______(7) resolved: false\n`
+      `|(1) false\n|__(2) false\n|____(4) false\n|______(5) false\n|__(3) false\n|____(6) false\n|______(7) false\n`
     );
   });
 });

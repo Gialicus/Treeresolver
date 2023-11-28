@@ -7,8 +7,8 @@ export const pretty = <R = unknown>(tree: TreeNode<R>, full = false) => {
       full
         ? t.resolved
           ? " -> " + JSON.stringify(t.resolved) + " "
-          : " resolved: " + t.done
-        : " resolved: " + t.done
+          : " " + t.done
+        : " " + t.done
     }\n`;
     count++;
     for (const t2 of t.children) {
