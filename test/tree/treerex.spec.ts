@@ -23,7 +23,7 @@ describe("TreeRex tests", () => {
     let rex = new TreeRex<string>(t1);
     await rex.findAndResolve(
       "D",
-      async (id) => `Long operation with ID: ${id}`
+      async (t) => `Long operation with ID: ${t.id}`
     );
     expect(rex.find("D")?.resolved).toBe(`Long operation with ID: D`);
   });
@@ -37,7 +37,7 @@ describe("TreeRex tests", () => {
     let rex = new TreeRex<string>(t1);
     await rex.findAndResolveChildren(
       "A",
-      async (id) => `Long operation with ID: ${id}`
+      async (t) => `Long operation with ID: ${t.id}`
     );
     expect(rex.find("A")?.children[0].resolved).toBe(
       `Long operation with ID: B`
@@ -56,8 +56,8 @@ describe("TreeRex tests", () => {
       t1.add(t2);
     }
     const rex = new TreeRex(t1);
-    await rex.resolveAll(async (id) => {
-      return `Long operation with ID: ${id}`;
+    await rex.resolveAll(async (t) => {
+      return `Long operation with ID: ${t.id}`;
     });
     expect(rex.root.children[5].children[3].resolved).toBe(
       "Long operation with ID: 3"
@@ -77,9 +77,9 @@ describe("TreeRex tests", () => {
     architect2.add(dev4).add(dev5).add(dev6);
     cto.add(architect1).add(architect2);
     const rex = new TreeRex(cto);
-    const stepper = rex.resolveLayer(async (id) => {
+    const stepper = rex.resolveLayer(async (tree) => {
       await setTimeout(200);
-      return `Long operation with ID: ${id}`;
+      return `Long operation with ID: ${tree.id}`;
     });
     await stepper.next();
     expect(rex.root.resolved).toBe("Long operation with ID: CTO");

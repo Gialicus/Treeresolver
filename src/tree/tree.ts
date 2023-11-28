@@ -13,7 +13,7 @@ export class Tree<ReturnType> implements TreeNode<ReturnType> {
     return this;
   }
   async resolve(callback: ResolveCallback<ReturnType>) {
-    this.resolved = await callback(this.id);
+    this.resolved = await callback(this);
     this.done = true;
     return this;
   }

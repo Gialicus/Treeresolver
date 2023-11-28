@@ -5,4 +5,6 @@ export interface TreeNode<ReturnType> {
   children: TreeNode<ReturnType>[];
 }
 
-export type ResolveCallback<ReturnType> = (id: string) => Promise<ReturnType>;
+export type ResolveCallback<ReturnType> = (
+  tree: TreeNode<ReturnType>
+) => Promise<ReturnType>;

@@ -10,7 +10,7 @@ describe("Tree tests", () => {
   });
   it("should resolve tree", async () => {
     const t1 = new Tree("1");
-    await t1.resolve(async (id) => id);
+    await t1.resolve(async (tree) => tree.id);
     expect(t1.done).toBeTruthy();
     expect(t1.resolved).toBe("1");
   });

@@ -30,8 +30,8 @@ cto
 const rex = new TreeRex<string>(cto);
 
 const run = async () => {
-  await rex.resolveAll(async (id) => {
-      return `Long operation with ID: ${id}`;
+  await rex.resolveAll(async (node) => {
+      return `Long operation with ID: ${node.id}`;
     });
 };
 
@@ -79,9 +79,9 @@ cto
 
 const run = async () => {
   const rex = new TreeRex<string>(cto);
-  const stepper = rex.resolveLayer(async (id) => {
+  const stepper = rex.resolveLayer(async (node) => {
     await setTimeout(200);
-    return `Long operation with ID: ${id}`;
+    return `Long operation with ID: ${node.id}`;
   });
   await stepper.next();
   console.log(rex.pretty())
