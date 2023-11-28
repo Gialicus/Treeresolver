@@ -90,7 +90,6 @@ describe("TreeRex tests", () => {
     expect(rex.root.children[1].resolved).toBe(
       "Long operation with ID: ARCHITECT_2"
     );
-    console.log(rex.pretty());
     await stepper.next();
     expect(rex.root.children[0].children[0].resolved).toBe(
       "Long operation with ID: DEV_1"

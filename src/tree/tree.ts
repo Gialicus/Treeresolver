@@ -1,20 +1,23 @@
-import { TreeNode } from "./tree.interface";
-export class Tree<R> implements TreeNode<R> {
-  resolved: R | null;
-  children: Tree<R>[];
+import { ResolveCallback, TreeNode } from "./tree.interface";
+export class Tree<ReturnType> implements TreeNode<ReturnType> {
+  resolved?: ReturnType;
+  done: boolean;
+  children: Tree<ReturnType>[];
   constructor(public id: string) {
-    this.resolved = null;
+    this.resolved = undefined;
+    this.done = false;
     this.children = [];
   }
-  add(tree: Tree<R>) {
+  add(tree: Tree<ReturnType>) {
     this.children.push(tree);
     return this;
   }
-  async resolve(callback: (id: string) => Promise<R>) {
+  async resolve(callback: ResolveCallback<ReturnType>) {
     this.resolved = await callback(this.id);
+    this.done = true;
     return this;
   }
-  async resolveChildren(callback: (id: string) => Promise<R>) {
+  async resolveChildren(callback: ResolveCallback<ReturnType>) {
     let queue = [];
     for (let i = 0; i < this.children.length; i++) {
       queue.push(this.children[i].resolve(callback));

@@ -8,4 +8,10 @@ describe("Tree tests", () => {
     );
     expect(t1.children[1].children[0].id).toBe("6");
   });
+  it("should resolve tree", async () => {
+    const t1 = new Tree("1");
+    await t1.resolve(async (id) => id);
+    expect(t1.done).toBeTruthy();
+    expect(t1.resolved).toBe("1");
+  });
 });
