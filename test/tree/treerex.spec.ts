@@ -63,43 +63,52 @@ describe("TreeRex tests", () => {
       "Long operation with ID: 3"
     );
   });
-
   it("should resolve all layer in tree step by step", async () => {
-    const t1 = new Tree("ROOT");
-    for (let i = 0; i < 5; i++) {
-      const t2 = new Tree("A" + i);
-      for (let j = 0; j < 3; j++) {
-        t2.add(
-          new Tree("B" + j)
-            .add(new Tree("C1" + j))
-            .add(new Tree("C2" + j).add(new Tree("D" + j)))
-        );
-      }
-      t1.add(t2);
-    }
-    const rex = new TreeRex(t1);
+    const cto = new Tree<string>("CTO");
+    const architect1 = new Tree<string>("ARCHITECT_1");
+    const architect2 = new Tree<string>("ARCHITECT_2");
+    const dev1 = new Tree<string>("DEV_1");
+    const dev2 = new Tree<string>("DEV_2");
+    const dev3 = new Tree<string>("DEV_3");
+    const dev4 = new Tree<string>("DEV_4");
+    const dev5 = new Tree<string>("DEV_5");
+    const dev6 = new Tree<string>("DEV_6");
+    architect1.add(dev1).add(dev2).add(dev3);
+    architect2.add(dev4).add(dev5).add(dev6);
+    cto.add(architect1).add(architect2);
+    const rex = new TreeRex(cto);
     const stepper = rex.resolveLayer(async (id) => {
       await setTimeout(200);
       return `Long operation with ID: ${id}`;
     });
     await stepper.next();
-    expect(rex.root.resolved).toBe("Long operation with ID: ROOT");
+    expect(rex.root.resolved).toBe("Long operation with ID: CTO");
     await stepper.next();
-    expect(rex.root.children[0].resolved).toBe("Long operation with ID: A0");
+    expect(rex.root.children[0].resolved).toBe(
+      "Long operation with ID: ARCHITECT_1"
+    );
+    expect(rex.root.children[1].resolved).toBe(
+      "Long operation with ID: ARCHITECT_2"
+    );
+    console.log(rex.pretty());
     await stepper.next();
     expect(rex.root.children[0].children[0].resolved).toBe(
-      "Long operation with ID: B0"
+      "Long operation with ID: DEV_1"
     );
-    await stepper.next();
-    expect(rex.root.children[0].children[0].children[0].resolved).toBe(
-      "Long operation with ID: C10"
+    expect(rex.root.children[0].children[1].resolved).toBe(
+      "Long operation with ID: DEV_2"
     );
-    expect(rex.root.children[0].children[0].children[1].resolved).toBe(
-      "Long operation with ID: C20"
+    expect(rex.root.children[0].children[2].resolved).toBe(
+      "Long operation with ID: DEV_3"
     );
-    await stepper.next();
-    expect(
-      rex.root.children[0].children[0].children[1].children[0].resolved
-    ).toBe("Long operation with ID: D0");
+    expect(rex.root.children[1].children[0].resolved).toBe(
+      "Long operation with ID: DEV_4"
+    );
+    expect(rex.root.children[1].children[1].resolved).toBe(
+      "Long operation with ID: DEV_5"
+    );
+    expect(rex.root.children[1].children[2].resolved).toBe(
+      "Long operation with ID: DEV_6"
+    );
   });
 });
