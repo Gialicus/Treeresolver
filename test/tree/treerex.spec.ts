@@ -109,5 +109,6 @@ describe("TreeRex tests", () => {
     expect(rex.root.children[1].children[2].resolved).toBe(
       "Long operation with ID: DEV_6"
     );
+    console.log(rex.pretty());
   });
 });

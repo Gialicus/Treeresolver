@@ -1,10 +1,14 @@
 import { TreeNode } from "..";
 
-export const pretty = <R = unknown>(tree: TreeNode<R>) => {
+export const pretty = <R = unknown>(tree: TreeNode<R>, full = false) => {
   const recursive = (t: TreeNode<R>, str = "", count = 0) => {
     if (!t.id) return str;
     str += `|${"__".repeat(count)}(${t.id})${
-      t.resolved ? " -> " + JSON.stringify(t.resolved) + " " : ""
+      full
+        ? t.resolved
+          ? " -> " + JSON.stringify(t.resolved) + " "
+          : " resolved: " + t.done
+        : " resolved: " + t.done
     }\n`;
     count++;
     for (const t2 of t.children) {

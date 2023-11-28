@@ -68,7 +68,7 @@ export class TreeRex<ReturnType> {
     for await (const _ of this.resolveLayer(callback)) {
     }
   }
-  pretty() {
-    return pretty(this.root);
+  pretty(full = false) {
+    return pretty(this.root, full);
   }
 }
