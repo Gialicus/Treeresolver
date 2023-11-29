@@ -14,4 +14,10 @@ describe("Tree tests", () => {
     expect(t1.done).toBeTruthy();
     expect(t1.resolved).toBe("1");
   });
+
+  it("should flat id of tree", async () => {
+    const t1 = new Tree("1").add(new Tree("2").add(new Tree("3")));
+    expect(t1.flat()).toStrictEqual(["1", "2", "3"]);
+    expect(t1.children[0].flat()).toStrictEqual(["2", "3"]);
+  });
 });

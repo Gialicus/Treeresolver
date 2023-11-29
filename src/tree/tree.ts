@@ -12,6 +12,17 @@ export class Tree<ReturnType> implements TreeNode<ReturnType> {
     this.children.push(tree);
     return this;
   }
+  flat() {
+    const flatInner = (tree: Tree<ReturnType>, ids: string[] = []) => {
+      if (!tree) return ids;
+      ids.push(tree.id);
+      for (const child of tree.children) {
+        ids.concat(flatInner(child, ids));
+      }
+      return ids;
+    };
+    return flatInner(this, []);
+  }
   async resolve(callback: ResolveCallback<ReturnType>) {
     this.resolved = await callback(this);
     this.done = true;
